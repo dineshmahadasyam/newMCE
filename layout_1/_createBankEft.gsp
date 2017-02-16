@@ -1,18 +1,24 @@
+<%@ page import="com.perotsystems.diamond.bom.GroupEx"%>
 <%@ page import="com.dell.diamond.fms.enums.PageNameEnum" %>
 <!DOCTYPE html>
 <html>
 	<head>
+	
 		<meta name="layout" content="main">
+					
 		<g:set var="entityName" value="${message(code: 'agentMaster.label', default: 'AgentMaster')}" />
-		<g:set var="isShowCalendarIcon" value="${PageNameEnum.AGENCY_ADD_BANKING.equals(currentPage)?true:false}" />
-		<g:set var="appContext" bean="grailsApplication"/>
-		<title><g:message code="default.edit.label" args="[entityName]" /></title>
 		
+		<g:set var="isShowCalendarIcon" value="${PageNameEnum.AGENT_MASTER_ADD_BANKING.equals(currentPage)?true:false}" />
+			
+		<g:set var="appContext" bean="grailsApplication"/>
+			
+		<title><g:message code="default.edit.label" args="[entityName]" /></title>
+	
 		<!-- Main menu select -->
 		<meta name="navSelector" content="maint"/>
 		<!-- Child menu select -->
-		<meta name="navChildSelector" content="agency"/>
-			
+		<meta name="navChildSelector" content="agentMaster"/>
+		
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.validate.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'additional-methods.js')}"></script>	
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.alphanum.js')}"></script>
@@ -20,15 +26,12 @@
 		<script type="text/javascript">
 
 		$(document).ready(function() {
-			jQuery.validator.setDefaults({
-				ignore: ":hidden",	
-				debug: true			 
-				});
 
+			$(".maskZip").mask("99999?-9999");
+			
 			$.validator.addMethod("customValidation1", function(value, element) {
 				return this.optional(element) || /^[a-zA-Z0-9-. ]+$/i.test(value);
 			}, "Please enter letters, numbers, hyphen, period and space only");
-
 
 			jQuery.validator.addMethod("numberValidation", function(value, element) {
 				return this.optional(element) || /^[0-9]+$/.test(value);				
@@ -59,11 +62,15 @@
 
 			}, $.format("{3} must be greater than {2}") );
 				
+			jQuery.validator.setDefaults({
+				ignore: ":hidden",	
+				debug: true			 
+				});
+
 			$(function() {		
 				$("#editForm").validate({
 					onfocusout: false,
 					submitHandler: function (form) {
-						isInvalidForm = 'false';
 						  if ($(form).valid()) 
 		                      form.submit(); 
 		                  return false; // prevent normal form posting
@@ -72,7 +79,6 @@
 			      	//jQuery validate selects the first invalid element or the last focused invalid element
 			        //The code below will set focus to first element that fails
 			        invalidHandler: function(form, validator) {
-			        	isInvalidForm = 'true'; 
 			            var errors = validator.numberOfInvalids();
 			            if (errors) {   
 			            	//Hide any previous message from the server when the client validation is occuring
@@ -111,7 +117,7 @@
 							},
 							'agentEFT.0.termReason' :  {
 								required : function(element){														
-									return $.trim($("#agentEFT\\.0\\.termDate").val()).length > 0					
+									return $.trim($("#agentEFT\\.0\\.termDate").val()).length > 0 
 								}
 							},
 							'agentEFT.0.termDate' :  {
@@ -121,11 +127,10 @@
 								greaterThan:[ "#agentEFT\\.0\\.effectiveDate","#agentEFT\\.0\\.termDate","Effective Date","Term Date"]
 							},
 							'agentEFT.0.accountType' : {
-								required : true
-								
-							},	
+							   required : true
+						},	
 									
-				},
+					},
 					messages : {
 						'agentEFT.0.accountNumber' : {
 							required : "Please enter the Account Number",
@@ -152,7 +157,7 @@
 						'agentEFT.0.effectiveDate' : {
 							required : "Please enter the Effective Date"
 						},
-					    'agentEFT.0.termReason' :  {
+						'agentEFT.0.termReason' :  {
 							required : "Term Reason is a mandatory field if Term Date is entered, please enter the Term Reason"
 						},
 						'agentEFT.0.termDate' :  {
@@ -161,24 +166,25 @@
 						'agentEFT.0.accountType' : {
 							required : "Please select an Account Type"
 		
-						},	
+						},
 						
 					} 
-					 
 				})
 			});
 
 			}); 
+				
+
 			function closeForm() {
-				var seqAgencyId = "${params.seqAgencyId}";
-				var agencyId = "${params.agencyId}";
-				var agencyType = "${params.agencyType}";
+				var seqAgentId = "${params.seqAgentId}";
+				var agentId = "${params.agentId}";
+				var agentType = "${params.agentType}";
 				
 				var appName = "${appContext.metadata['app.name']}";
-	
-				window.location.assign("/"+appName+"/agency/edit?seqAgencyId=" + seqAgencyId +
-				"?agencyId=" + agencyId + "&agencyType=" + agencyType + "&editType=BANKING&creationDate=");
-	
+
+				window.location.assign("/"+appName+"/agentMaster/edit?seqAgentId=" + seqAgentId +
+				"?agentId=" + agentId + "&agentType=" + agentType + "&editType=BANKING&creationDate=");
+
 			}
 
 		</script>
@@ -186,23 +192,25 @@
 	<div id="fms_content">
 		<div id="fms_content_header">
 	    	<div class="fms_content_header_note">
-	      		<a href="${createLink(uri: '/agency/list')}">Agency Maintenance</a> / 
-	      		<g:link class="list" action="edit" params="${[seqAgencyId: agencyInstance?.seqAgencyId, agencyId: agencyInstance?.agencyId, agencyType: agencyInstance?.agencyType, editType :'BANKING']}">Banking</g:link>
-	      			/ Add Agency Banking for Agent Id - ${agencyInstance?.seqAgencyId}
+	      		<a href="${createLink(uri: '/agentMaster/list')}">Agent Maintenance</a> / 
+	      		<g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'BANKING', creationDate:params.creationDate]}">Banking</g:link>
+	      			/ Add Agent/Broker Banking for Agent Id - ${agentMasterInstance?.agentId}
 	      	</div>
 		  	<div class="fms_content_title">
-	          	<h1>Add Agency Banking</h1>
+	          	<h1>Add Agent/Broker Banking</h1>
 	        </div>
 		</div> 
 		<%-- START - Tabs --%>
 			<div id="fms_content_tabs">
 				<ul>
-					<li><g:link class="list" action="edit" params="${[seqAgencyId: agencyInstance?.seqAgencyId, agencyId: agencyInstance?.agencyId, agencyType: agencyInstance?.agencyType, editType :'MASTER']}">Master Record</g:link></li>
-					<li><g:link class="list" action="edit" params="${[seqAgencyId: agencyInstance?.seqAgencyId, agencyId: agencyInstance?.agencyId, agencyType: agencyInstance?.agencyType, editType :'ADDRESS']}">Addresses</g:link></li>
-					<li><g:link class="list" action="edit" params="${[seqAgencyId: agencyInstance?.seqAgencyId, agencyId: agencyInstance?.agencyId, agencyType: agencyInstance?.agencyType, editType :'CONTACT']}">Contacts</g:link></li>
-					<li><g:link class="list" action="edit" params="${[seqAgencyId: agencyInstance?.seqAgencyId, agencyId: agencyInstance?.agencyId, agencyType: agencyInstance?.agencyType, editType :'CONTRACTS']}">Contracts</g:link></li>
-					<li><g:link class="active" action="edit" params="${[seqAgencyId: agencyInstance?.seqAgencyId, agencyId: agencyInstance?.agencyId, agencyType: agencyInstance?.agencyType, editType :'BANKING']}">Banking</g:link></li>
-					<li><g:link class="list" action="edit" params="${[seqAgencyId: agencyInstance?.seqAgencyId, agencyId: agencyInstance?.agencyId, agencyType: agencyInstance?.agencyType, editType :'LICENSE', callingPage: 'AGENCY']}">License and Certification</g:link></li>
+					<li><g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'MASTER', creationDate:params.creationDate]}">Master Record</g:link></li>
+					<li><g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'ADDRESS', creationDate:params.creationDate]}">Addresses</g:link></li>
+					<li><g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'CONTACT', creationDate:params.creationDate]}">Contacts</g:link></li>
+					<li><g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'TXN', creationDate:params.creationDate]}">Transactions</g:link></li>
+					<li><g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'COMMISSION', creationDate:params.creationDate]}">Broker Commissions</g:link></li>
+					<li><g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'CONTRACTS', creationDate:params.creationDate]}">Contracts</g:link></li>
+				    <li><g:link class="active" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'BANKING', creationDate:params.creationDate]}">Banking</g:link></li>
+				    <li><g:link class="list" action="edit" params="${[seqAgentId: agentMasterInstance?.seqAgentId, agentId: agentMasterInstance?.agentId, agentType: agentMasterInstance?.agentType, editType :'LICENSE', callingPage: 'AGENT']}">License and Certification</g:link></li>
 				</ul>
 			<div id="mobile_tabs_select"></div>
 		</div>
@@ -239,11 +247,13 @@
 					<%-- Error messages end--%>
 					
 					<g:form action="saveAgentEft" id="editForm" name="editForm">
-					<ul id="errorDisplay" style="display: none;" class="errors" role="alert" style="float:left; margin: -5px 10px 0px 0px; "></ul>
-						<input type="hidden" name="seqAgencyId" value="${agencyInstance?.seqAgencyId} ">						
+						<input type="hidden" name="seqAgentId" value="${agentMasterInstance?.seqAgentId} ">
+						<input type="hidden" name="agentId" value="${agentMasterInstance?.agentId}">
+						<input type="hidden" name="agentType" value="${agentMasterInstance?.agentType}">
+						
 						<!-- START - WIDGET: General Information -->
 		    			<div id="widgetGeneral" class="fms_widget">
-		                  	<legend><h2>Add Agency Banking</h2></legend>
+		                  	<legend><h2>Add Agent/Broker Banking</h2></legend>
 	                  		<div class="fms_form_layout_2column">                  
 	                    		<div class="fms_form_column fms_very_long_labels">
 									<label id="accountNumber_label" class="control-label fms_required" for="accountNumber"> 
@@ -251,8 +261,8 @@
 									</label>
 									<div class="fms_form_input">
 										<g:secureTextField class="form-control" name="agentEFT.0.accountNumber" value="${agentEFT?.accountNumber}"  title="The Bank Account Number"
-											maxlength="25" tableName="AGENT_EFT" attributeName="accountNumber" id="accountNumber"
-											aria-labelledby="accountNumber_label" aria-describedby="accountNumber_error" aria-required="false">
+												maxlength="25" tableName="AGENT_EFT" attributeName="accountNumber" id="accountNumber"
+												aria-labelledby="accountNumber_label" aria-describedby="accountNumber_error" aria-required="false">
 										</g:secureTextField>
 										<div class="fms_form_error" id="accountNumber_error"></div>
 									</div>
@@ -261,9 +271,9 @@
 									</label>
 									<div class="fms_form_input">
 										<g:secureTextField class="form-control" name="agentEFT.0.nameOnAccount" value="${agentEFT?.nameOnAccount}" title="The Name on the Account"
-								    		maxlength="60" tableName="AGENT_EFT" attributeName="nameOnAccount" id="nameOnAccount"
-								    		aria-labelledby="nameOnAccount_label" aria-describedby="nameOnAccount_error" aria-required="false">
-								    	</g:secureTextField>
+							    					maxlength="60" tableName="AGENT_EFT" attributeName="nameOnAccount" id="nameOnAccount"
+							    					aria-labelledby="nameOnAccount_label" aria-describedby="nameOnAccount_error" aria-required="false">
+							   			</g:secureTextField>
     									<div class="fms_form_error" id="nameOnAccount_error"></div>
 									</div>
 									<label id="bankName_label" class="control-label fms_required" for="bankName"> 
@@ -271,19 +281,19 @@
 									</label>
 									<div class="fms_form_input">
 									    <g:secureTextField class="form-control" name="agentEFT.0.bankName" value="${agentEFT?.bankName}" title="The Bank Name"
-								    		maxlength="60" tableName="AGENT_EFT" attributeName="bankName" id="bankName"
-								    		aria-labelledby="bankName_label" aria-describedby="bankName_error" aria-required="false">
-								    	</g:secureTextField>
+							    			maxlength="60" tableName="AGENT_EFT" attributeName="bankName" id="bankName"
+							    			aria-labelledby="bankName_label" aria-describedby="bankName_error" aria-required="false">
+							    		</g:secureTextField>
 									    <div class="fms_form_error" id="bankName_error"></div>	
 									</div>
 									<label id="routingNumber_label" class="control-label fms_required" for="routingNumber">
 										<g:message code="agentMaster.agentEft.routingNumber.label" default="ABA Routing No:" />
 		 							</label>
 		 							<div class="fms_form_input">	
-										<g:secureTextField class="form-control" id="routingNumber" name="agentEFT.0.routingNumber"	title="The ABA Routing Number of the Bank"
-											value="${agentEFT?.routingNumber}"  maxlength="9" tableName="AGENT_EFT" attributeName="routingNumber"
+										<g:secureTextField class="form-control" name="agentEFT.0.routingNumber"	title="The ABA Routing Number of the Bank"
+											id="routingNumber" value="${agentEFT?.routingNumber}" maxlength="9" tableName="AGENT_EFT" attributeName="routingNumber"
 											aria-labelledby="routingNumber_label" aria-describedby="routingNumber_error" aria-required="false">
-									 	</g:secureTextField>
+										</g:secureTextField>
 										<div class="fms_form_error" id="routingNumber_error"></div>	
 									</div>
 									<label id="description_label" class="control-label" for="description">
@@ -303,11 +313,11 @@
 									</label>
 									<div class="fms_form_input">
 										<g:secureComboBox class="form-control" id="accountType" name="agentEFT.0.accountType" title="The Bank Account Type" 
-				                                  tableName="AGENT_EFT" attributeName="accountType"
-				                                  value="${agentEFT?.accountType}"
-				                                  aria-labelledby="accountType_label" aria-describedby="accountType_error" aria-required="false"
-				                                  from="${['' : '-- Select the Account Type --', 'C': 'C – Checking' , 'S': 'S – Savings']}" optionValue="value" optionKey="key">
-				                    	</g:secureComboBox>
+			                                  tableName="AGENT_EFT" attributeName="accountType"
+			                                  value="${agentEFT?.accountType}"
+			                                  aria-labelledby="accountType_label" aria-describedby="accountType_error" aria-required="false"
+			                                  from="${['' : '-- Select the Account Type --', 'C': 'C – Checking' , 'S': 'S – Savings']}" optionValue="value" optionKey="key">
+					                    </g:secureComboBox>	
 					                    <div class="fms_form_error" id="accountType_error"></div>	
 									</div>
 									<label id="statusFlag_label" class="control-label fms_required" for="statusFlag">
@@ -315,21 +325,21 @@
 									</label>
 									<div class="fms_form_input">
 										<g:secureComboBox class="form-control" id="statusFlag" name="agentEFT.0.statusFlag" title="The Account Status" 
-				                                  tableName="AGENT_EFT" attributeName="statusFlag"
-				                                  value="${agentEFT?.statusFlag}"
-				                                  aria-labelledby="statusFlag_label" aria-describedby="statusFlag_error" aria-required="false"
-				                                  from="${['' : '-- Select the Status --', 'P': 'P – Primary' , 'S': 'S - Secondary']}" optionValue="value" optionKey="key">
-				                    	</g:secureComboBox>
+			                                  tableName="AGENT_EFT" attributeName="statusFlag"
+			                                  value="${agentEFT?.statusFlag}"
+			                                  aria-labelledby="statusFlag_label" aria-describedby="statusFlag_error" aria-required="false"
+			                                  from="${['' : '-- Select the Status --', 'P': 'P – Primary' , 'S': 'S - Secondary']}" optionValue="value" optionKey="key">
+					                    </g:secureComboBox>	
 					                    <div class="fms_form_error" id="statusFlag_error"></div>	
 									</div>
 									<label id="effectiveDate_label" class="control-label fms_required" for="effectiveDate">
-										<g:message code="agentMaster.agentEft.effectiveDate.label" default="Effective Date: " /> 
+										<g:message code="agentMaster.agentEft.effectiveDate.label" default="Effective Date:" />
 									</label>
 									<div class="fms_form_input">
 										<fmsui:jqDatePickerUIUX 
 											datePickerOptions="changeMonth:true, changeYear:true, yearRange:'-100:+100', numberOfMonths: 1"
 	                                  		dateElementValue="${formatDate(format:'MM/dd/yyyy',date: agentEFT?.effectiveDate)}"
-	                                  		dateElementId="agentEFT.0.effectiveDate" mandatory="mandatory" 
+	                                  		dateElementId="agentEFT.0.effectiveDate" 
 	                                  		dateElementName="agentEFT.0.effectiveDate" 
 	                                        ariaAttributes="aria-labelledby='effectiveDate_label' aria-describedby='effectiveDate_error' aria-required='false'" 
 	                                        classAttributes ="class='form-control fms_date_mask fms_small_input onDelete hasDatepicker' "
@@ -337,7 +347,7 @@
 					                        <div class="fms_form_error" id="effectiveDate_error"></div>
 									</div>
 									<label id="termDate_label" class="control-label" for="termDate">	
-										<g:message code="agentMaster.agentEFT.termDate.label" default="Term Date: " />
+										<g:message code="agentMaster.agentEFT.termDate.label" default="Term Date:" />
 									</label>
 									<div class="fms_form_input">
 										<fmsui:jqDatePickerUIUX 
@@ -357,7 +367,7 @@
 										<g:textField class="form-control" 
 													maxlength="5" 
 													title="The Bank Account Term Reason"
-													name="agentEFT.0.termReason" 
+													name="agentEFT.0.termReason"
 													tableName="AGENT_EFT" attributeName="termReason" 
 													value="${agentEFT?.termReason}"
 													aria-labelledby="termReason_label" aria-describedby="termReason_error" aria-required="false"/>
@@ -374,11 +384,11 @@
 											htmlElementsToAddToQueryCDOProperty="reasonCodeType" />
 											<div class="fms_form_error" id="termReason_error"></div>	
 									</div>
-									</div>
+								</div>
 							</div>
 						</div>
 						<div class="fms_form_button">
-						 	<g:actionSubmit class="btn btn-primary" action="saveAgencyEft" value="${message(code: 'default.button.create.label', default: 'Create')}" />
+						 	<g:actionSubmit class="btn btn-primary" action="saveAgentEft" value="${message(code: 'default.button.create.label', default: 'Create')}" />
 						 	<input class="btn btn-default" type="reset">
 							<input type="button" class="btn btn-default" name="close" value="${message(code: 'default.button.cancel.label', default: 'Cancel')}" onClick="closeForm()"/>
 	      				</div>	
@@ -389,4 +399,3 @@
 		<!-- END - FMS Content Body -->
 	</div>
 </html>
-	

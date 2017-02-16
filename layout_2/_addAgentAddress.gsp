@@ -13,7 +13,7 @@
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery-ui-1.7.2.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.window.js')}"></script>
 		
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.validate.js')}"></script>
+		<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'additional-methods.js')}"></script>	
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.maskedinput.js')}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.alphanum.js')}"></script>
@@ -24,13 +24,30 @@
 
 			$(".maskZip").mask("99999?-9999");
 			
+			$.validator.addMethod("zipcodeUS", function(value, element) {
+				return this.optional(element) || /\d{5}-\d{4}$|^\d{5}$/.test(value) || /\d{5}-____$/.test(value)
+			}, "Zip Code must be 5 or 9 digits");
+
 			$.validator.addMethod("customValidation1", function(value, element) {
 				return this.optional(element) || /^[a-zA-Z0-9-. ]+$/i.test(value);
 			}, "Please enter letters, numbers, hyphen, period and space only");
 
-			jQuery.validator.addMethod("numberValidation", function(value, element) {
-				return this.optional(element) || /^[0-9]+$/.test(value);				
-			}, "Please enter only numbers 0 through 9");
+			$.validator.addMethod("customValidation2", function(value, element) {
+				return this.optional(element) || /^[a-zA-Z. ]+$/i.test(value);
+			}, "Please enter letters, period and space only");
+
+			$.validator.addMethod("customValidation3", function(value, element) {
+				return this.optional(element) || /^[a-zA-Z- ]+$/i.test(value);
+			}, "Please enter letters and hyphen only");
+
+			$.validator.addMethod("customValidation4", function(value, element) {
+				return this.optional(element) || /^[a-zA-Z]+$/i.test(value);
+			}, "Please enter letters only");
+
+			$.validator.addMethod("zipcodeUS", function(value, element) {
+				return this.optional(element) || /\d{5}-\d{4}$|^\d{5}$/.test(value) || /\d{5}-____$/.test(value)
+			}, "Zip Code must be 5 or 9 digits");
+
 			
 			//Add extra validations for effective and term date.
 			//New validation method to compare date fields.
@@ -85,114 +102,116 @@
 					errorLabelContainer: "#errorDisplay", 
 					 wrapper: "li",		
 					rules : {
-							 'agentEFT.0.accountNumber' : {
-								required : true,
-								numberValidation : true
-							},
-							'agentEFT.0.nameOnAccount' : {
+							 'agentAddress.0.addressLine1' : {
 								required : true,
 								customValidation1 : true
 							},
-							'agentEFT.0.bankName' : {
-								required : true,
+							'agentAddress.0.addressLine2' : {
 								customValidation1 : true
 							},
-							'agentEFT.0.routingNumber' : {
+							'agentAddress.0.city' : {
 								required : true,
-								numberValidation:true
+								customValidation2 : true
 							},
-							'agentEFT.0.description' : {
-								customValidation1 : true
-							},
-							'agentEFT.0.statusFlag' : {
+							'agentAddress.0.state' : {
 								required : true
 							},
-							'agentEFT.0.effectiveDate_day' : {
+							'agentAddress.0.county' : {
+								customValidation3 : true
+							},
+							'agentAddress.0.country' : {
+								customValidation4 : true
+							},
+							'agentAddress.0.zipCode' : {
+								required : true,
+								zipcodeUS : true
+							},
+							'agentAddress.0.addressType' : {
 								required : true
 							},
-							'agentEFT.0.effectiveDate_month' : {
+							'agentAddress.0.effectiveDate_day' : {
 								required : true
 							},
-							'agentEFT.0.effectiveDate_year' : {
+							'agentAddress.0.effectiveDate_month' : {
 								required : true
 							},
-							'agentEFT.0.termReason' :  {
+							'agentAddress.0.effectiveDate_year' : {
+								required : true
+							},
+							'agentAddress.0.termReason' :  {
 								required : function(element){														
-									return $.trim($("#agentEFT\\.0\\.termDate_year").val()).length > 0 ||
-									$.trim($("#agentEFT\\.0\\.termDate_month").val()).length > 0 ||
-									$.trim($("#agentEFT\\.0\\.termDate_day").val()).length > 0;						
+									return $.trim($("#agentAddress\\.0\\.termDate_year").val()).length > 0 ||
+									$.trim($("#agentAddress\\.0\\.termDate_month").val()).length > 0 ||
+									$.trim($("#agentAddress\\.0\\.termDate_day").val()).length > 0;						
 								}
 							},
-							'agentEFT.0.termDate_year' :  {
+							'agentAddress.0.termDate_year' :  {
 								required : function(element){														
-									return $.trim($("#agentEFT\\.0\\.termReason").val()).length > 0 	;						
+									return $.trim($("#agentAddress\\.0\\.termReason").val()).length > 0 	;						
 								},
-								greaterThan:[ "#agentEFT\\.0\\.effectiveDate","#agentEFT\\.0\\.termDate","Effective Date","Term Date"]
+								greaterThan:[ "#agentAddress\\.0\\.effectiveDate","#agentAddress\\.0\\.termDate","Effective Date","Term Date"]
 							},
-							'agentEFT.0.termDate_month' :  {
+							'agentAddress.0.termDate_month' :  {
 								required : function(element){														
-									return $.trim($("#agentEFT\\.0\\.termReason").val()).length > 0 	;						
+									return $.trim($("#agentAddress\\.0\\.termReason").val()).length > 0 	;						
 								}
 							},
-							'agentEFT.0.termDate_day' :  {
+							'agentAddress.0.termDate_day' :  {
 								required : function(element){														
-									return $.trim($("#agentEFT\\.0\\.termReason").val()).length > 0 	;						
+									return $.trim($("#agentAddress\\.0\\.termReason").val()).length > 0 	;						
 								}
-							},
-							'agentEFT.0.accountType' : {
-							   required : true
-						},	
+							}	
 									
 				},
 					messages : {
-						'agentEFT.0.accountNumber' : {
-							required : "Please enter the Account Number",
-							numberValidation : "Please enter numbers only for Bank Account No."
+						'agentAddress.0.addressLine1' : {
+							required : "Please enter the Address Line 1",
+							customValidation1 : "Please enter letters, numbers, hyphen, space and period only for Address Line 1"
 						},
-						'agentEFT.0.nameOnAccount' : {
-							required : "Please enter the Name on Account",
-							customValidation1 : "Please enter letters, numbers, hyphen, space and period only for Name on Account"
+						'agentAddress.0.addressLine2' : {
+							customValidation1 : "Please enter letters, numbers, hyphen, space and period only for Address Line 2"
 						},
-						'agentEFT.0.bankName' : {
-							required : "Please enter the Bank Name",
-							customValidation1 : "Please enter letters, numbers, hyphen, spaces and period only for Bank Name"
+						'agentAddress.0.city' : {
+							required : "Please enter the City",
+							customValidation2 : "Please enter letters, period and space only for City"
 						},
-						'agentEFT.0.routingNumber' : {
-							required : "Please enter the ABA Routing No.",
-							numberValidation : "Please enter numbers only for ABA Routing No."
+						'agentAddress.0.state' : {
+							required : "Please select a State"
 						},
-						'agentEFT.0.description' : {
-							customValidation1 : "Please enter letters, numbers, hyphen, spaces and period only for Account Description."
+						'agentAddress.0.county' : {
+							customValidation3 : "Please enter letters, space and hyphen only for County"
 						},
-						'agentEFT.0.statusFlag' : {
-							required : "Please select a Status",
+						'agentAddress.0.country' : {
+							customValidation4 : "Please enter letters only for Country"
 						},
-						'agentEFT.0.effectiveDate_day' : {
+						'agentAddress.0.zipCode' : {
+							required : "Please enter the Zip Code",
+							zipcodeUS : "Zip Code must be 5 or 9 digits"
+						},
+						'agentAddress.0.addressType' : {
+							required : "Please select an Address Type"
+						},
+						'agentAddress.0.effectiveDate_day' : {
 							required : "Please enter the Effective Date"
 						},
-						'agentEFT.0.effectiveDate_month' : {
+						'agentAddress.0.effectiveDate_month' : {
 							required : "Please enter the Effective Month"
 						},
-						'agentEFT.0.effectiveDate_year' : {
+						'agentAddress.0.effectiveDate_year' : {
 							required : "Please enter the Effective Year"
 						},
-					    'agentEFT.0.termReason' :  {
+						'agentAddress.0.termReason' :  {
 							required : "Term Reason is a mandatory field if Term Date is entered, please enter the Term Reason"
 						},
-						'agentEFT.0.termDate_year' :  {
+						'agentAddress.0.termDate_year' :  {
 							required : "Term Date is a mandatory field if Term Reason is entered, please enter the Term Year"
 						},
-						'agentEFT.0.termDate_month' :  {
+						'agentAddress.0.termDate_month' :  {
 							required : "Term Date is a mandatory field if Term Reason is entered, please enter the Term Month"
 						},
-						'agentEFT.0.termDate_day' :  {
+						'agentAddress.0.termDate_day' :  {
 							required : "Term Date is a mandatory field if Term Reason is entered, please enter the Term Date"
-						},
-						'agentEFT.0.accountType' : {
-							required : "Please select an Account Type"
-		
-						},
-						
+						}		
 						
 					} 
 					 
@@ -350,8 +369,8 @@
 <body>
 
 	<div id="show-agentAddress" class="content scaffold-show" role="main">
-		<h1 style="color: #48802C">Create Agent/Broker Banking</h1>
-		<div class="right-corner" align="center">BRBNK</div>
+		<h1 style="color: #48802C">Add Address to Agent/Broker : ${agentMasterInstance?.agentId }</h1>
+		<div class="right-corner" align="center">AGNTA</div>
 		<g:if test="${flash.message}">
 			<div class="message" role="status">
 				${flash.message}
@@ -366,9 +385,9 @@
 				</g:each>
 			</ul>
 		</g:if>
-		<g:hasErrors bean="${agentEFT}">
+		<g:hasErrors bean="${agentAddress}">
 			<ul class="errors" role="alert">
-				<g:eachError bean="${agentEFT}" var="error">
+				<g:eachError bean="${agentAddress}" var="error">
 				<li <g:if test="${error in org.springframework.validation.FieldError}">data-field-id="${error.field}"</g:if>><g:message error="${error}"/></li>
 				</g:eachError>
 			</ul>
@@ -376,7 +395,7 @@
 		<div id="errorDisplay" style="display: none;" class="errors"
 			style="float:left; margin: -5px 10px 0px 0px; "></div>
 
-		<g:form action="saveAgentEft" id="editForm" name="editForm">
+		<g:form action="saveAddress" id="editForm" name="editForm">
 		<input type="hidden" name="seqAgentId" value="${agentMasterInstance?.seqAgentId} ">
 		<input type="hidden" name="agentId" value="${agentMasterInstance?.agentId}">
 		<input type="hidden" name="agentType" value="${agentMasterInstance?.agentType}">
@@ -386,126 +405,177 @@
 					<table class="report" border="0" style="table-layout: fixed;" id="report">
 						<tr>
 							<td class="tdnoWrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'accountNumber', 'error')} ">
-									<label for="accountNumber" style="padding-right:30px;"> 
-										<g:message code="agentMaster.agentEft.accountNumber.label" default="Bank Account No" />
-										<span class="required-indicator">*</span> :
-									</label>									
-									<g:secureTextField name="agentEFT.0.accountNumber" value="${agentEFT?.accountNumber}"  title="The Bank Account Number"
-									maxlength="25" tableName="AGENT_EFT" attributeName="accountNumber" id="accountNumber"></g:secureTextField>
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'addressLine1', 'error')} ">
+									<label for="addressLine1"> 
+										<g:message code="agentMaster.addressLine1.label" default="Address Line 1 :" />
+											<span class="required-indicator">*</span>
+									</label>
+									<g:textField name="agentAddress.0.addressLine1" value="${agentAddress?.addressLine1}"  autofocus="autofocus"
+										  title="The first Address line" maxlength="60" />
 								</div>
 							</td>
 							<td class="tdnoWrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'nameOnAccount', 'error')} ">
-									<label for="nameOnAccount" style="padding-right:40px;"> 
-										<g:message code="agentMaster.agentEft.nameOnAccount.label" default="Name on Account" />
-											<span class="required-indicator">*</span> :
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'addressLine2', 'error')} ">
+									<label for="addressLine2"> 
+										<g:message code="agentMaster.addressLine2.label" default="Address Line 2 :" />
 									</label>
-								    <g:secureTextField name="agentEFT.0.nameOnAccount" value="${agentEFT?.nameOnAccount}" title="The Name on the Account"
-								    maxlength="60" tableName="AGENT_EFT" attributeName="nameOnAccount" id="nameOnAccount"></g:secureTextField>
-										  
-								</div>
-							</td>							
-							<td class="tdnoWrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'bankName', 'error')} ">
-									<label for="bankName" style="padding-right:15px;"> 
-										<g:message code="agentMaster.agentEft.bankName.label" default="Bank Name" />
-											<span class="required-indicator">*</span> :
-									</label>
-								    <g:secureTextField name="agentEFT.0.bankName" value="${agentEFT?.bankName}" title="The Bank Name"
-								    maxlength="60" tableName="AGENT_EFT" attributeName="bankName" id="bankName"></g:secureTextField>
-										  
+									<g:textField name="agentAddress.0.addressLine2" value="${agentAddress?.addressLine2}"  
+									title="The 2nd Address line" maxlength="60" />
 								</div>
 							</td>
 						</tr>
 						<tr>
 							<td class="tdnoWrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'routingNumber', 'error')} ">
-									<label for="routingNumber" style="padding-right:30px;"> 
-										<g:message code="agentMaster.agentEft.routingNumber.label" default="ABA Routing No" />
-										<span class="required-indicator">*</span> :
-				                     </label>	
-									 <g:secureTextField name="agentEFT.0.routingNumber"	title="The ABA Routing Number of the Bank"
-										value="${agentEFT?.routingNumber}"  maxlength="9" tableName="AGENT_EFT" attributeName="routingNumber"></g:secureTextField>
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'city', 'error')} ">
+									<label for="lastName"> 
+										<g:message code="agentMaster.city.label" default="City :" /> 
+										<span class="required-indicator">*</span>
+									</label>
+									<g:textField name="agentAddress.0.city" value="${agentAddress?.city}"   
+										title="The City" maxlength="30" />
 								</div>
 							</td>
 							<td class="tdnoWrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'description', 'error')} ">
-									<label for="description" style="padding-right:40px;"> 
-										<g:message code="agentMaster.agentEft.description.label" default="Account Description"  /> :
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'state', 'error')} ">
+									<label for="state"> 
+										<g:message code="agentMaster.state.label" default="State :" /> 
+										<span class="required-indicator">*</span>
 									</label>
-									<g:secureTextField name="agentEFT.0.description" title="The Bank Account Description"	
-										value="${agentEFT?.description}"  maxlength="60" tableName="AGENT_EFT" attributeName="description"></g:secureTextField>
+									<g:select name="agentAddress.0.state" optionKey="stateCode" optionValue="stateName"
+									 id="agentAddress.0.state" from="${states}" noSelection="['':'-- Select a State --']"
+									  value="${agentAddress?.state}"></g:select>
 								</div>
 							</td>
-							
-							<td class="tdnoWrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'accountType', 'error')} ">
-									<label for="accountType" style="padding-right:15px;"> 
-										<g:message code="agentMaster.agentEft.accountType.label" default="Account Type"  />
-									    <span class="required-indicator">*</span> :
-									</label>
-									<g:secureComboBox id="accountType" name="agentEFT.0.accountType" title="The Bank Account Type" 
-				                                  tableName="AGENT_EFT" attributeName="accountType"
-				                                  value="${agentEFT?.accountType}"
-				                                  from="${['' : '-- Select the Account Type --', 'C': 'C – Checking' , 'S': 'S – Savings']}" optionValue="value" optionKey="key">
-				                    </g:secureComboBox>		
-								</div>
-							</td>
-						</tr>					
+						</tr>
 						<tr>
-						<td class="tdnoWrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'statusFlag', 'error')} ">
-									<label for="statusFlag" style="padding-right:30px;"> 
-										<g:message code="agentMaster.agentEft.statusFlag.label" default="Status"  />
-										<span class="required-indicator">*</span> :
+							<td class="tdnoWrap">
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'county', 'error')} ">
+									<label for="county"> 
+										<g:message code="agentMaster.county.label" default="County :" />
 									</label>
-									<g:secureComboBox id="statusFlag" name="agentEFT.0.statusFlag" title="The Account Status" 
-				                                  tableName="AGENT_EFT" attributeName="statusFlag"
-				                                  value="${agentEFT?.statusFlag}"
-				                                  from="${['' : '-- Select the Status --', 'P': 'P – Primary' , 'S': 'S - Secondary']}" optionValue="value" optionKey="key">
-				                    </g:secureComboBox>		
+									<g:textField name="agentAddress.0.county" title="The County" maxlength="30" value="${agentAddress?.county}" />
 								</div>
 							</td>
+							<td class="tdnoWrap">
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'country', 'error')} ">
+									<label for="county"> 
+										<g:message code="agentMaster.country.label" default="Country :" />
+									</label>
+									<g:textField name="agentAddress.0.country" title="The Country" maxlength="30" value="${agentAddress?.country}" />
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="tdnoWrap">
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'zipCode', 'error')} ">
+									<label for="zipCode"> 
+										<g:message code="agentMaster.zipCode.label" default="Zip Code :" />
+											<span class="required-indicator">*</span>
+									</label>
+									<g:textField name="agentAddress.0.zipCode" value="${agentAddress?.zipCode}" class="maskZip"  
+									title="5 or 9 digit Zip Code. Enter numbers only" />
+								</div>
+							</td>
+							<td class="tdnoWrap">
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'addressType', 'error')} ">
+									<label for="addressType"> 
+										<g:message code="agentMaster.addressType.label" default="Address Type :" /> 
+										<span class="required-indicator">*</span>
+									</label>
+									<g:getSystemCodeToken
+											systemCodeType="AGENTAGENCYADDR" languageId="0"
+											htmlElelmentId="agentAddress.0.addressType"
+											blankValue="Address Type"
+											defaultValue="${agentAddress?.addressType}" width="135px" />
+								</div>
+							</td>
+						</tr>
+						<tr>
 							<td class="tdnoWrap" style="white-space: nowrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'effectiveDate', 'error')} ">
-									<label for="effectiveDate" style="padding-right:40px;"> 
-										<g:message code="agentMaster.agentEft.effectiveDate.label" default="Effective Date " /> 
-										<span class="required-indicator">*</span> :
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'effectiveDate', 'error')} ">
+									<label for="effectiveDate"> 
+										<g:message code="agentMaster.effectiveDate.label" default="Effective Date :" />
+											<span class="required-indicator">*</span>
 										</label>
-										<g:datePicker name="agentEFT.0.effectiveDate" precision="day" noSelection="['':'']" title="The Bank Account Effective Date"
+										<g:datePicker name="agentAddress.0.effectiveDate" precision="day" noSelection="['':'']" 
 											title ="The Effective date of the Address"
-											value="${agentEFT?.effectiveDate}" default="none" />		
+											value="${agentAddress?.effectiveDate}" default="none" />		
 								</div>
 							</td>						
 							<td class="tdnoWrap" style="white-space: nowrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'termDate', 'error')} ">
-									<label for="termDate" style="padding-right:15px;"> 
-										<g:message code="agentMaster.agentEFT.termDate.label" default="Term Date " /> :
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'termDate', 'error')} ">
+									<label for="termDate"> 
+										<g:message code="agentMaster.termDate.label" default="Term Date :" />
 									</label>
-									<g:datePicker name="agentEFT.0.termDate" precision="day" noSelection="['':'']" title="The Bank Account Term Date"
+									<g:datePicker name="agentAddress.0.termDate" precision="day" noSelection="['':'']" 
 											title ="The Termination date of the Address"
-											value="${agentEFT?.termDate}" default="none" />
+											value="${agentAddress?.termDate}" default="none" />
 								</div>
 							</td>		
 						</tr>
 						<tr>
-						<td class="tdnoWrap" style="white-space: nowrap">
-								<div class="fieldcontain ${hasErrors(bean: agentEFT, field: 'termReason', 'error')} ">
-									<label for="termReason" style="padding-right:30px;"> 
-										<g:message code="agentEFT.termReason.label" default="Term Reason " /> :
+							<td class="tdnoWrap" style="white-space: nowrap">
+								<div class="fieldcontain ${hasErrors(bean: agentAddress, field: 'termReason', 'error')} ">
+									<label for="termReason"> 
+										<g:message code="agentMaster.termReason.label" default="Term Reason :" />
 									</label>
-									<g:textField maxlength="5" title="The Termination Reason of the Address" title="The Bank Account Term Reason" maxlength="5"
-										name="agentEFT.0.termReason" 
-										value="${agentEFT?.termReason}"/>
+									<g:textField maxlength="5" title="The Termination Reason of the Address"
+										name="agentAddress.0.termReason" 
+										value="${agentAddress?.termReason}"/>
 									<input type="hidden" id="reasonCodeTypeHidden" value="TM" />
 									<img width="25" height="25" style="float:none;vertical-align:bottom" class="magnifying"
 										src="${resource(dir: 'images', file: 'Search-icon.png')}"
-										onclick="lookup('agentEFT.0.termReason', 'com.perotsystems.diamond.dao.cdo.ReasonCodeMaster','reasonCode','reasonCodeTypeHidden','reasonCodeType')">
+										onclick="lookup('agentAddress.0.termReason', 'com.perotsystems.diamond.dao.cdo.ReasonCodeMaster','reasonCode','reasonCodeTypeHidden','reasonCodeType')">
 								</div>
-							</td>		
-						
-						
+							</td>				
+						</tr>
+						<tr><td>&nbsp;</td></tr>
+						<tr>
+							<td class="tdnoWrap" colspan="2">User Defined Information :
+								<hr>
+							</td>
+						</tr>
+						<tr>
+							<td class="tdnoWrap">
+								<div
+									class="fieldcontain ${hasErrors(bean: agentAddress, field: 'userDefined1', 'error')} ">
+									<label for="userDefined1">
+										<g:userDefinedFieldLabel winId="AGNTA" datawindowId ="AGNTA" userDefineTextName="user_defined_1_t" defaultText="User Defined 1 "/>
+									</label>
+									<g:textField name="agentAddress.0.userDefined1" maxlength="60"  value="${agentAddress?.userDefined1}" />
+								</div>
+							</td>
+							<td class="tdnoWrap">
+								<div
+									class="fieldcontain ${hasErrors(bean: agentAddress, field: 'userDefined2', 'error')} ">
+									<label for="userDefined2">
+										<g:userDefinedFieldLabel winId="AGNTA" datawindowId ="AGNTA" userDefineTextName="user_defined_2_t" defaultText="User Defined 2 "/> 
+									</label>
+									<g:textField name="agentAddress.0.userDefined2" maxlength="60"  value="${agentAddress?.userDefined2}" />
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="tdnoWrap">
+								<div
+									class="fieldcontain ${hasErrors(bean: agentAddress, field: 'userDefinedDate1', 'error')} ">
+									<label for="userDefinedDate"> 
+										<g:userDefinedFieldLabel winId="AGNTA" datawindowId ="AGNTA" userDefineTextName="user_date_1_t" defaultText="User Date 1 "/>
+									</label>
+									<g:datePicker name="agentAddress.0.userDate1" precision="day" noSelection="['':'']"
+												value="${agentAddress?.userDate1}" default="none" />
+								</div>
+							</td>
+							<td class="tdnoWrap">
+								<div
+									class="fieldcontain ${hasErrors(bean: agentAddress, field: 'userDefinedDate2', 'error')} ">
+									<label for="userDefinedDate"> 
+										<g:userDefinedFieldLabel winId="AGNTA" datawindowId ="AGNTA" userDefineTextName="user_date_2_t" defaultText="User Date 2 "/>
+									</label>
+									<g:datePicker name="agentAddress.0.userDate2" precision="day" noSelection="['':'']"
+												value="${agentAddress?.userDate2}" default="none" />
+								</div>
+							</td>
 						</tr>
 						<tr>
 							<td class="tdnoWrap"></td>
@@ -515,7 +585,7 @@
 			</tr>
 		</table>
 			<fieldset class="buttons">
-				<g:actionSubmit class="save" action="saveAgentEft" class="create"
+				<g:actionSubmit class="save" action="saveAddress"
 					value="${message(code: 'default.button.create.label', default: 'Create')}" />
 				<input type="Reset" class="reset" value="Reset" />
 				<input type="button" class="close" value="Close" onClick="closeForm()"/>
